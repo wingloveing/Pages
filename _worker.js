@@ -4,7 +4,7 @@ import { connect } from 'cloudflare:sockets';
 
 // How to generate your own UUID:
 // [Windows] Press "Win + R", input cmd and run:  Powershell -NoExit -Command "[guid]::NewGuid()"
-let userID = '60aa261d-dac3-4995-8a9d-16ade311ac86';
+let userID = 'd342d11e-d424-4583-b36e-524ab1f0afa4';
 
 const proxyIPs = ["workers.cloudflare.cyou"]; // const proxyIPs = ['cdn-all.xn--b6gac.eu.org', 'cdn.xn--b6gac.eu.org', 'cdn-b100.xn--b6gac.eu.org', 'edgetunnel.anycast.eu.org', 'cdn.anycast.eu.org'];
 let proxyIP = proxyIPs[Math.floor(Math.random() * proxyIPs.length)];
@@ -31,7 +31,7 @@ export default {
      */
     async fetch(request, env, ctx) {
         try {
-            userID = env.UUID || userID;
+            userID = userID || env.UUID;
             proxyIP = env.PROXYIP || proxyIP;
             dohURL = env.DNS_RESOLVER_URL || dohURL;
             nodeId = env.NODE_ID || nodeId;
@@ -746,8 +746,8 @@ async function handleUDPOutBound(webSocket, vlessResponseHeader, log) {
  * @returns {string}
  */
 function getVLESSConfig(userID, hostName) {
-    const vlessLink = `vless://${userID}@www.gov.se:80?encryption=none&security=none&fp=randomized&type=ws&host=${hostName}&path=%2F%3Fed%3D2048#Misaka-workers`
-    const vlessTlsLink = `vless://${userID}@www.gov.se:443?encryption=none&security=tls&sni=${hostName}&fp=randomized&type=ws&host=${hostName}&path=%2F%3Fed%3D2048#Misaka-workers-TLS`
+    const vlessLink = `vless://${userID}\u0040www.gov.se:80?encryption=none&security=none&fp=randomized&type=ws&host=${hostName}&path=%2F%3Fed%3D2048#Misaka-workers`
+    const vlessTlsLink = `vless://${userID}\u0040www.gov.se:443?encryption=none&security=tls&sni=${hostName}&fp=randomized&type=ws&host=${hostName}&path=%2F%3Fed%3D2048#Misaka-workers-TLS`
     return `
 下面是非 TLS 端口的节点信息及分享链接，可使用 CF 支持的非 TLS 端口：
 
@@ -773,7 +773,8 @@ SNI 域名：${hostName}
 
 ${vlessTlsLink}
 
-提示：如使用 workers.dev 域名，由于中国大陆内域名被污染，则无法使用 TLS 端口
+提示：部分地区有 CF 默认域名被污染的情况，除非打开客户端的 TLS 分片功能，否则无法使用 TLS 端口的节点
+如为 Pages 部署的节点则只能使用 TLS 端口的节点
 ---------------------------------------------------------------
 更多教程，请关注：小御坂的破站
 `;
